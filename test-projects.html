@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test | Featured Projects Section</title>
+    <style>
+      :root {
+        --base-100: #f4f4f4;
+        --base-200: #a6d96a;
+        --base-300: #201d1d;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        overflow-x: hidden;
+        background-color: var(--base-100);
+        color: var(--base-300);
+      }
+
+      h1,
+      a,
+      p {
+        font-family: "PP Neue Montreal", sans-serif;
+        font-weight: 500;
+        letter-spacing: -2%;
+        line-height: 1;
+        text-decoration: none;
+      }
+
+      /* ---------------------------------------------------------------
+         Test spacers (sirf scroll test karne ke liye)
+         --------------------------------------------------------------- */
+      .spacer {
+        display: grid;
+        place-items: center;
+        min-height: 100svh;
+        background-color: var(--base-300);
+        color: var(--base-100);
+      }
+
+      .spacer p {
+        font-size: clamp(0.7rem, 1vw, 0.85rem);
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        opacity: 0.55;
+      }
+
+      /* ---------------------------------------------------------------
+         Featured Projects
+         --------------------------------------------------------------- */
+      .featured-projects {
+        --projects-gutter: clamp(1rem, 2.1vw, 2rem);
+        padding: clamp(4.5rem, 9vw, 9rem) var(--projects-gutter) clamp(5rem, 10vw, 10rem);
+        color: var(--base-300);
+        background-color: var(--base-100);
+        overflow-x: clip;
+      }
+
+      .featured-projects-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1.5rem;
+        margin: 0 0 clamp(2rem, 4vw, 4rem);
+      }
+
+      .featured-projects-heading h2 {
+        font-family: "PP Neue Montreal", sans-serif;
+        font-size: clamp(3.5rem, 10vw, 10rem);
+        font-weight: 500;
+        letter-spacing: -0.05em;
+        line-height: 0.82;
+        text-transform: uppercase;
+      }
+
+      .featured-projects-heading p {
+        font-family: "PP Neue Montreal", sans-serif;
+      }
+
+      /* Text roll: three stacked copies of the line slide down through a clipped stage. */
+      .roll-text {
+        --roll-line: 1lh;
+        --roll-duration: 1.2s;
+        --roll-stagger: 0.03s;
+      }
+
+      .roll-stage {
+        position: relative;
+        display: block;
+        overflow-x: visible;
+        overflow-y: clip;
+      }
+
+      .roll-line-mask {
+        overflow-x: visible !important;
+      }
+
+      .roll-copy {
+        display: block;
+        width: 100%;
+        white-space: nowrap;
+      }
+
+      .roll-copy:not(:first-child) {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      .roll-copy:nth-child(1) {
+        --roll-from: -3;
+      }
+
+      .roll-copy:nth-child(2) {
+        --roll-from: -2;
+      }
+
+      .roll-copy:nth-child(3) {
+        --roll-from: -1;
+      }
+
+      .roll-char {
+        display: inline-block;
+        vertical-align: top;
+        will-change: transform;
+      }
+
+      .kicker-mask {
+        display: inline-block;
+        overflow: hidden;
+        vertical-align: bottom;
+      }
+
+      .kicker-word {
+        display: inline-block;
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .roll-char {
+          transform: translateY(calc(var(--roll-from, 0) * var(--roll-line)));
+          transition: transform var(--roll-duration) cubic-bezier(0.165, 0.84, 0.44, 1);
+          transition-delay: calc(var(--order, 0) * var(--roll-stagger));
+        }
+
+        .roll-text.is-visible .roll-char {
+          transform: translateY(
+            calc((var(--roll-from, 0) + 3) * var(--roll-line))
+          );
+        }
+
+        .kicker-word {
+          transform: translateY(100%);
+          transition: transform 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+          transition-delay: calc(var(--i, 0) * 0.1s);
+        }
+
+        .featured-projects-kicker.is-visible .kicker-word {
+          transform: translateY(0);
+        }
+      }
+
+      .featured-projects-kicker {
+        max-width: 12rem;
+        padding-bottom: 0.35rem;
+        font-size: clamp(0.85rem, 1vw, 1rem);
+        line-height: 1;
+        text-align: right;
+        will-change: transform;
+      }
+
+      .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: clamp(0.5rem, 0.8vw, 1rem);
+        row-gap: clamp(1.5rem, 3vw, 3rem);
+      }
+
+      .project-card {
+        min-width: 0;
+      }
+
+      .project-image-wrap {
+        position: relative;
+        aspect-ratio: 1.5;
+        overflow: hidden;
+        border-radius: clamp(0.65rem, 1.25vw, 1.25rem);
+        background-color: transparent;
+      }
+
+      .project-image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* Reveal: card tilts in from an alternating corner while its frame and
+         image settle from an oversized scale. */
+      @media (prefers-reduced-motion: no-preference) {
+        .project-card {
+          --card-origin: right bottom;
+          --card-rotate: -3deg;
+          transform-origin: var(--card-origin);
+          transform: rotate(var(--card-rotate));
+          transition: transform 1.1s cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        .project-card:nth-child(even) {
+          --card-origin: left bottom;
+          --card-rotate: 3deg;
+        }
+
+        .project-image-wrap {
+          transform-origin: var(--card-origin, right bottom);
+          transform: scale(0.8);
+          transition: transform 1s cubic-bezier(0.215, 0.61, 0.355, 1);
+          /* Promote the scaling frame and image to their own compositor
+             layers. Without this the phone re-rasterises the rounded,
+             overflow-clipped image on every frame, so the reveal reads as a
+             stuttering static jump instead of a smooth scale. */
+          will-change: transform;
+          backface-visibility: hidden;
+        }
+
+        .project-image {
+          transform-origin: var(--card-origin, right bottom);
+          transform: scale(1.5);
+          transition: transform 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+          will-change: transform;
+          backface-visibility: hidden;
+        }
+
+        .project-card.is-visible {
+          transform: rotate(0deg);
+        }
+
+        .project-card.is-visible .project-image-wrap,
+        .project-card.is-visible .project-image {
+          transform: scale(1);
+        }
+      }
+
+      /* Leaving the viewport snaps straight back to the start state (no reverse
+         transition) so the next entry always replays the whole reveal fresh. */
+      @media (prefers-reduced-motion: no-preference) {
+        .roll-text:not(.is-visible) .roll-char,
+        .featured-projects-kicker:not(.is-visible) .kicker-word,
+        .project-card:not(.is-visible),
+        .project-card:not(.is-visible) .project-image-wrap,
+        .project-card:not(.is-visible) .project-image {
+          transition: none;
+        }
+      }
+
+      .project-details {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.35rem 0.2rem 0;
+      }
+
+      .project-details h3 {
+        font-family: "PP Neue Montreal", sans-serif;
+        font-size: clamp(1.25rem, 3vw, 3rem);
+        font-weight: 600;
+        letter-spacing: -0.065em;
+        line-height: 0.95;
+        text-transform: uppercase;
+      }
+
+      .project-details p {
+        flex: 0 0 auto;
+        padding-top: 0.2rem;
+        font-size: clamp(0.65rem, 0.85vw, 0.85rem);
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 700px) {
+        .featured-projects {
+          --projects-gutter: 1rem;
+          padding-block: 4.5rem 5rem;
+        }
+
+        .featured-projects-heading {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 1rem;
+          margin-bottom: 2rem;
+        }
+
+        .featured-projects-heading h2 {
+          font-size: clamp(3.4rem, 15vw, 6rem);
+        }
+
+        .featured-projects-kicker {
+          max-width: 15rem;
+          text-align: left;
+        }
+
+        .projects-grid {
+          grid-template-columns: 1fr;
+          row-gap: 1.75rem;
+        }
+
+        .project-details h3 {
+          font-size: clamp(1.5rem, 7vw, 2.5rem);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Spacer 1 -->
+    <div class="spacer" aria-hidden="true">
+      <p>Scroll down</p>
+    </div>
+
+    <section class="featured-projects" id="projects" aria-labelledby="featured-projects-title">
+      <div class="featured-projects-heading">
+        <h2 id="featured-projects-title" class="roll-text" data-roll-txt data-reveal="down">Featured<br />Projects</h2>
+        <p class="featured-projects-kicker" data-reveal="once" aria-label="A selection of places to live, grow, and invest in Dubai.">
+          <span class="kicker-mask" aria-hidden="true"><span class="kicker-word" style="--i:0">A</span></span>
+          <span class="kicker-mask" aria-hidden="true"><span class="kicker-word" style="--i:1">selection</span></span>
+          <span class="kicker-mask" aria-hidden="true"><span class="kicker-word" style="--i:2">of</span></span>
+          <span class="kicker-mask" aria-hidden="true"><span class="kicker-word" style="--i:3">places</span></span>
+          <span class="kicker-mask" aria-hidden="true"><span class="kicker-word" style="--i:4">to</span></span>
+          <span class="kicker-mask" aria-hidden="true"><span class="kicker-word" style="--i:5">live,</span></span>
+          <span class="kicker-mask" aria-hidden="true"><span class="kicker-word" style="--i:6">grow,</span></span>
+          <span class="kicker-mask" aria-hidden="true"><span class="kicker-word" style="--i:7">and</span></span>
+          <span class="kicker-mask" aria-hidden="true"><span class="kicker-word" style="--i:8">invest</span></span>
+          <span class="kicker-mask" aria-hidden="true"><span class="kicker-word" style="--i:9">in</span></span>
+          <span class="kicker-mask" aria-hidden="true"><span class="kicker-word" style="--i:10">Dubai.</span></span>
+        </p>
+      </div>
+
+      <div class="projects-grid">
+        <article class="project-card" data-reveal>
+          <div class="project-image-wrap">
+            <img class="project-image" src="https://picsum.photos/seed/damac-lagoons/1200/800" alt="Demo image one" />
+          </div>
+          <div class="project-details">
+            <h3 class="roll-text" data-roll-txt data-reveal>Damac Lagoons</h3>
+            <p class="roll-text" data-roll-txt data-reveal>Dubai, UAE</p>
+          </div>
+        </article>
+
+        <article class="project-card" data-reveal>
+          <div class="project-image-wrap">
+            <img class="project-image" src="https://picsum.photos/seed/greenz-villas/1200/800" alt="Demo image two" />
+          </div>
+          <div class="project-details">
+            <h3 class="roll-text" data-roll-txt data-reveal>Greenz by Danube</h3>
+            <p class="roll-text" data-roll-txt data-reveal>Dubai, UAE</p>
+          </div>
+        </article>
+
+        <article class="project-card" data-reveal>
+          <div class="project-image-wrap">
+            <img class="project-image" src="https://picsum.photos/seed/greenz-park/1200/800" alt="Demo image three" />
+          </div>
+          <div class="project-details">
+            <h3 class="roll-text" data-roll-txt data-reveal>Greenz Community</h3>
+            <p class="roll-text" data-roll-txt data-reveal>Dubai, UAE</p>
+          </div>
+        </article>
+
+        <article class="project-card" data-reveal>
+          <div class="project-image-wrap">
+            <img class="project-image" src="https://picsum.photos/seed/oceanz-towers/1200/800" alt="Demo image four" />
+          </div>
+          <div class="project-details">
+            <h3 class="roll-text" data-roll-txt data-reveal>Oceanz by Danube</h3>
+            <p class="roll-text" data-roll-txt data-reveal>Dubai, UAE</p>
+          </div>
+        </article>
+
+        <article class="project-card" data-reveal>
+          <div class="project-image-wrap">
+            <img class="project-image" src="https://picsum.photos/seed/timez-skyline/1200/800" alt="Demo image five" />
+          </div>
+          <div class="project-details">
+            <h3 class="roll-text" data-roll-txt data-reveal>Timez by Danube</h3>
+            <p class="roll-text" data-roll-txt data-reveal>Dubai, UAE</p>
+          </div>
+        </article>
+
+        <article class="project-card" data-reveal>
+          <div class="project-image-wrap">
+            <img class="project-image" src="https://picsum.photos/seed/olivz-residences/1200/800" alt="Demo image six" />
+          </div>
+          <div class="project-details">
+            <h3 class="roll-text" data-roll-txt data-reveal>Olivz by Danube</h3>
+            <p class="roll-text" data-roll-txt data-reveal>Dubai, UAE</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Spacer 2 -->
+    <div class="spacer" aria-hidden="true">
+      <p>End of section</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/SplitText.min.js"></script>
+    <script>
+      (function () {
+        gsap.registerPlugin(SplitText);
+
+        // Toggle the class that drives the CSS reveal animations (project cards,
+        // heading roll, kicker). A scroll-driven rAF check mirrors ScrollTrigger's
+        // `start: "top bottom"` exactly, so the reveal fires the instant the element
+        // crosses the viewport edge instead of waiting on an IntersectionObserver.
+        var revealElements = Array.prototype.slice.call(
+          document.querySelectorAll("[data-reveal]")
+        );
+
+        if (revealElements.length) {
+          // A reveal that carries an image has to wait until that image has decoded.
+          // Otherwise the animation plays over an empty frame and the picture pops in
+          // halfway through, which reads as a glitch on a slower, hosted connection.
+          var decodedImages = new WeakSet();
+          var elementImages = new Map();
+          var revealFrame = 0;
+
+          // Cache each element's image once so the per-frame check stays cheap.
+          revealElements.forEach(function (element) {
+            var image = element.querySelector("img");
+            if (image) elementImages.set(element, image);
+          });
+
+          var updateReveals = function () {
+            revealFrame = 0;
+            var viewportHeight = window.innerHeight;
+            revealElements.forEach(function (element) {
+              var rect = element.getBoundingClientRect();
+              var top = rect.top;
+              var bottom = rect.bottom;
+              var image = elementImages.get(element);
+              var ready = !image || decodedImages.has(image);
+              var isVisible = element.classList.contains("is-visible");
+              // Enter the moment the element touches a viewport edge, but only leave
+              // once it has cleared that edge by a margin. The reveal itself changes
+              // the element's bounding box (rotation/scale), so a single threshold
+              // makes the class flip on and off at the boundary — which cancels and
+              // restarts the transition and shows up as a static glitch.
+              var inView = top < viewportHeight && bottom > 0;
+              var outOfView = top > viewportHeight + 32 || bottom < -32;
+
+              if (ready && inView) {
+                element.classList.add("is-visible");
+              } else if (isVisible && outOfView) {
+                element.classList.remove("is-visible");
+              }
+            });
+          };
+
+          var scheduleRevealUpdate = function () {
+            if (revealFrame) return;
+            revealFrame = requestAnimationFrame(updateReveals);
+          };
+
+          elementImages.forEach(function (image) {
+            image
+              .decode()
+              .catch(function () {})
+              .then(function () {
+                decodedImages.add(image);
+                scheduleRevealUpdate();
+              });
+          });
+
+          updateReveals();
+          window.addEventListener("scroll", scheduleRevealUpdate, { passive: true });
+          window.addEventListener("resize", scheduleRevealUpdate);
+          window.addEventListener("load", scheduleRevealUpdate);
+        }
+
+        // Reveal split text as it enters the viewport after fonts load.
+        document.fonts.ready.then(function () {
+          // Split the roll headings and captions into lines, words and characters and
+          // stack three copies per line. CSS owns the animation; the random per
+          // character order is handed over as a --order custom property.
+          document.querySelectorAll("[data-roll-txt]").forEach(function (element) {
+            var label = element.innerText.trim().replace(/\s+/g, " ");
+            element.setAttribute("aria-label", label);
+
+            SplitText.create(element, {
+              type: "words,chars,lines",
+              tag: "span",
+              mask: "lines",
+              linesClass: "roll-line",
+              wordsClass: "roll-word",
+              charsClass: "roll-char",
+              aria: "none",
+              autoSplit: true,
+              onSplit: function (instance) {
+                instance.lines.forEach(function (line) {
+                  var lineMarkup = line.innerHTML;
+                  var stage = document.createElement("span");
+                  stage.className = "roll-stage";
+                  stage.setAttribute("aria-hidden", "true");
+
+                  var copies = [0, 1, 2].map(function () {
+                    var copy = document.createElement("span");
+                    copy.className = "roll-copy";
+                    copy.innerHTML = lineMarkup;
+                    stage.append(copy);
+                    return copy;
+                  });
+
+                  line.replaceChildren(stage);
+
+                  var characters = copies.map(function (copy) {
+                    return Array.prototype.slice.call(
+                      copy.querySelectorAll(".roll-char")
+                    );
+                  });
+                  var order = Array.from(
+                    { length: characters[0].length },
+                    function (_, index) {
+                      return index;
+                    }
+                  );
+
+                  for (var index = order.length - 1; index > 0; index -= 1) {
+                    var randomIndex = Math.floor(Math.random() * (index + 1));
+                    var swap = order[index];
+                    order[index] = order[randomIndex];
+                    order[randomIndex] = swap;
+                  }
+
+                  characters.forEach(function (rowCharacters) {
+                    rowCharacters.forEach(function (character, index) {
+                      character.style.setProperty("--order", String(order[index]));
+                    });
+                  });
+                });
+              },
+            });
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
